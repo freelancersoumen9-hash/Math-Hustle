@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Hustle Mini App</title>
+    
+    <!-- Monetag Telegram Mini App Official SDK -->
+    <script src='//libtl.com/sdk.js' data-zone='11279409' data-sdk='show_11279409'></script>
+
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #0f172a; color: #f8fafc; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px; }
+        .container { width: 100%; max-width: 450px; background: #1e293b; padding: 25px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid #334155; padding-bottom: 15px; }
+        .balance-box { background: #0284c7; padding: 8px 15px; border-radius: 20px; font-weight: bold; font-size: 0.95rem; }
+        .nav-tabs { display: flex; justify-content: space-between; margin-bottom: 20px; background: #334155; border-radius: 8px; padding: 5px; }
+        .tab-btn { background: none; border: none; color: #94a3b8; padding: 10px; flex: 1; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem; text-align: center; }
+        .tab-btn.active { background: #0f172a; color: #f8fafc; }
+        .page { display: none; }
+        .page.active { display: block; }
+        h3 { margin-bottom: 15px; color: #38bdf8; font-size: 1.2rem; }
+        .card { background: #0f172a; padding: 20px; border-radius: 12px; text-align: center; margin-bottom: 15px; border: 1px solid #334155; }
+        .math-box { font-size: 2rem; font-weight: bold; margin: 15px 0; color: #f8fafc; letter-spacing: 2px; }
+        input[type="number"], input[type="text"] { width: 100%; padding: 12px; border-radius: 8px; border: 2px solid #334155; background: #1e293b; color: #fff; font-size: 1.1rem; text-align: center; margin-bottom: 15px; outline: none; }
+        input:focus { border-color: #38bdf8; }
+        .btn { width: 100%; padding: 12px; background: #22c55e; border: none; border-radius: 8px; color: white; font-size: 1rem; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn:hover { background: #16a34a; }
+        .btn-blue { background: #0284c7; }
+        .btn-blue:hover { background: #0369a1; }
+        .stat-text { font-size: 0.9rem; color: #94a3b8; margin-top: 10px; }
+        .alert { padding: 10px; border-radius: 6px; margin-bottom: 15px; text-align: center; font-size: 0.9rem; display: none; }
+        .alert.success { background: #14532d; color: #4ade80; display: block; }
+        .alert.error { background: #7f1d1d; color: #f87171; display: block; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h2>Math Hustle</h2>
+        <div class="balance-box">💰 <span id="user-points">0</span> Pts</div>
+    </div>
+
+    <div class="nav-tabs">
+        <button class="tab-btn active" onclick="switchTab('math')">Math</button>
+        <button class="tab-btn" onclick="switchTab('bonus')">Bonus</button>
+        <button class="tab-btn" onclick="switchTab('refer')">Refer</button>
+        <button class="tab-btn" onclick="switchTab('withdraw')">Withdraw</button>
+    </div>
+
+    <div id="msg-box" class="alert"></div>
+
+    <!-- PAGE 1: MATH QUIZ -->
+    <div id="page-math" class="page active">
+        <div class="card">
+            <div class="stat-text">Daily Limit: <span id="math-count">0</span>/500</div>
+            <div class="stat-text">Streak to Ad: <span id="ad-streak">0</span>/5</div>
+            <div class="math-box" id="question">5 + 7 = ?</div>
+            <input type="number" id="math-answer" placeholder="Your Answer">
+            <button class="btn" onclick="checkAnswer()">Submit</button>
+        </div>
+    </div>
+
+    <!-- PAGE 2: BONUS & ADS -->
+    <div id="page-bonus" class="page">
+        <div class="card">
+            <h3>Daily Bonus</h3>
+            <p style="margin-bottom: 15px; font-size:0.9rem; color:#94a3b8;">Claim 100 Points (1 time daily).</p>
+            <button class="btn btn-blue" onclick="claimDailyBonus()">Claim Bonus</button>
+        </div>
+        <div class="card">
+            <h3>Watch Video Ads</h3>
+            <div class="stat-text" style="margin-bottom: 10px;">Daily Ads: <span id="ad-count">0</span>/5</div>
+            <button class="btn btn-blue" onclick="watchVideoAd()">Watch Ad (+20 Pts)</button>
+        </div>
+    </div>
+
+    <!-- PAGE 3: REFER SYSTEM -->
+    <div id="page-refer" class="page">
+        <div class="card">
+            <h3>Invite Friends</h3>
+            <p style="margin-bottom: 15px; font-size:0.95rem; color:#94a3b8;">Earn <span style="color:#22c55e; font-weight:bold;">+500 Points</span> for every friend you invite to this app!</p>
+            <div class="stat-text" style="margin-bottom: 15px; font-size: 1rem;">Total Referred: <span id="refer-count" style="color:#38bdf8; font-weight:bold;">0</span></div>
+            <button class="btn btn-blue" onclick="copyReferLink()">Copy Referral Link</button>
+        </div>
+    </div>
+
+    <!-- PAGE 4: WITHDRAW -->
+    <div id="page-withdraw" class="page">
+        <div class="card">
+            <h3>Binance (USDT TRC-20)</h3>
+            <p style="margin-bottom: 12px; font-size:0.9rem; color:#94a3b8;">Rate: 10,000 Points = 1 $USDT</p>
+            <input type="text" id="wallet-address" placeholder="Enter TRC-20 Address">
+            <button class="btn" onclick="requestWithdraw()">Withdraw</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- TELEGRAM & DATA CONFIGURATION ---
+    const BOT_TOKEN = "8252303674:AAE_z45u4tJNxd-jr6yxV6dvWF681TSyVA0"; 
+    const CHAT_ID = "-1004379068504"; 
+    const BOT_USERNAME = "MathHustle_bot"; 
+
+    // --- GAME STATES ---
+    let points = localStorage.getItem('pts') ? parseInt(localStorage.getItem('pts')) : 0;
+    let dailyMathDone = localStorage.getItem('mathCount') ? parseInt(localStorage.getItem('mathCount')) : 0;
+    let streak = localStorage.getItem('streakCount') ? parseInt(localStorage.getItem('streakCount')) : 0;
+    let dailyAdsDone = localStorage.getItem('adCount') ? parseInt(localStorage.getItem('adCount')) : 0;
+    let totalRefers = localStorage.getItem('refCount') ? parseInt(localStorage.getItem('refCount')) : 0;
+    
+    let num1, num2, correctAnswer;
+    let userId = Math.floor(100000 + Math.random() * 900000); 
+
+    // রেফারেল বোনাস ট্র্যাকিং
+    if (!localStorage.getItem('app_initialized')) {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('tgWebAppStartParam') || urlParams.has('ref')) {
+            points += 500; 
+            localStorage.setItem('pts', points);
+        }
+        localStorage.setItem('app_initialized', 'true');
+    }
+
+    updateUI();
+    generateMath();
+
+    function updateUI() {
+        document.getElementById('user-points').innerText = points;
+        document.getElementById('math-count').innerText = dailyMathDone;
+        document.getElementById('ad-streak').innerText = streak;
+        document.getElementById('ad-count').innerText = dailyAdsDone;
+        document.getElementById('refer-count').innerText = totalRefers;
+        
+        localStorage.setItem('pts', points);
+        localStorage.setItem('mathCount', dailyMathDone);
+        localStorage.setItem('streakCount', streak);
+        localStorage.setItem('adCount', dailyAdsDone);
+        localStorage.setItem('refCount', totalRefers);
+    }
+
+    function switchTab(tabName) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        
+        event.target.classList.add('active');
+        document.getElementById('page-' + tabName).classList.add('active');
+        hideMsg();
+    }
+
+    function generateMath() {
+        num1 = Math.floor(Math.random() * 20) + 1;
+        num2 = Math.floor(Math.random() * 20) + 1;
+        correctAnswer = num1 + num2;
+        document.getElementById('question').innerText = `${num1} + ${num2} = ?`;
+        document.getElementById('math-answer').value = '';
+    }
+
+    // Monetag অফিশিয়াল মিনি অ্যাপ মেথড
+    function triggerMonetagAd(callback) {
+        if (typeof show_11279409 === 'function') {
+            show_11279409().then(() => {
+                if(callback) callback();
+            }).catch((err) => {
+                console.log("Ad dismissed or failed:", err);
+                if(callback) callback();
+            });
+        } else {
+            if(callback) callback();
+        }
+    }
+
+    function checkAnswer() {
+        if (dailyMathDone >= 500) {
+            showMsg('error', 'Daily 500 Math Limit Reached!');
+            return;
+        }
+
+        let userAnswer = parseInt(document.getElementById('math-answer').value);
+        if (isNaN(userAnswer)) return;
+
+        if (userAnswer === correctAnswer) {
+            points += 10; 
+            dailyMathDone++;
+            streak++;
+            showMsg('success', 'Correct! +10 Points');
+
+            if (streak >= 5) {
+                streak = 0;
+                showMsg('success', 'Loading Official Ad...');
+                triggerMonetagAd();
+            }
+        } else {
+            showMsg('error', 'Wrong Answer! Try again.');
+        }
+
+        updateUI();
+        generateMath();
+    }
+
+    function claimDailyBonus() {
+        showMsg('success', 'Loading Ad for Bonus...');
+        triggerMonetagAd(function() {
+            points += 100;
+            showMsg('success', 'Daily Bonus Claimed! +100 Points');
+            updateUI();
+        });
+    }
+
+    function watchVideoAd() {
+        if (dailyAdsDone >= 5) {
+            showMsg('error', 'Daily 5 Ads Limit Reached!');
+            return;
+        }
+        
+        showMsg('success', 'Loading Video Ad...');
+        triggerMonetagAd(function() {
+            points += 20;
+            dailyAdsDone++;
+            showMsg('success', 'Official Ad Watched! +20 Points');
+            updateUI();
+        });
+    }
+
+    function copyReferLink() {
+        let refLink = `https://t.me/${BOT_USERNAME}/app?startapp=${userId}`;
+        
+        // মেইন মেথড: মডার্ন ব্রাউজার ক্লিপবোর্ড
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(refLink).then(() => {
+                showMsg('success', 'Referral link copied to clipboard!');
+                totalRefers++;
+                updateUI();
+            }).catch(err => {
+                fallbackCopy(refLink); 
+            });
+        } else {
+            fallbackCopy(refLink); 
+        }
+    }
+
+    // ব্যাকআপ কপি সিস্টেম (আইফ্রেম বা এডিটর প্রোটেকশন)
+    function fallbackCopy(text) {
+        try {
+            let textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed"; 
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            let successful = document.execCommand('copy');
+            document.body.removeChild(textArea);
+            
+            if (successful) {
+                showMsg('success', 'Referral link copied successfully!');
+                totalRefers++;
+                updateUI();
+            } else {
+                prompt("Copy your referral link manually:", text);
+            }
+        } catch (err) {
+            prompt("Copy your referral link manually:", text);
+        }
+    }
+
+    function requestWithdraw() {
+        let address = document.getElementById('wallet-address').value.trim();
+        if (address === "") {
+            showMsg('error', 'Please enter a valid address.');
+            return;
+        }
+        if (points < 10000) {
+            showMsg('error', 'Minimum 10,000 Points required to withdraw!');
+            return;
+        }
+
+        let oldPoints = points;
+        points -= 10000;
+        updateUI();
+
+        let message = `🚨 *NEW WITHDRAW REQUEST* 🚨\n\n` +
+                      `💰 *Amount:* 1 USDT\n` +
+                      `💳 *Network:* TRC-20\n` +
+                      `🔑 *Address:* \`${address}\`\n` +
+                      `📊 *User Total Points:* ${oldPoints} Pts`;
+
+        let url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(message)}&parse_mode=Markdown`;
+
+        fetch(url)
+            .then(response => {
+                if(response.ok) {
+                    showMsg('success', 'Withdraw request sent to Admin!');
+                    document.getElementById('wallet-address').value = '';
+                } else {
+                    points = oldPoints; 
+                    updateUI();
+                    showMsg('error', 'Failed to send request. Try again.');
+                }
+            })
+            .catch(err => {
+                points = oldPoints; 
+                updateUI();
+                showMsg('error', 'Connection error!');
+            });
+    }
+
+    function showMsg(type, text) {
+        let box = document.getElementById('msg-box');
+        box.className = 'alert ' + type;
+        box.innerText = text;
+    }
+    function hideMsg() { document.getElementById('msg-box').className = 'alert'; }
+</script>
+</body>
+</html>
