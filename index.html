@@ -3,104 +3,229 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Math Hustle Mini App</title>
+    <title>Math Hustle Premium - Funny Edition</title>
     
+    <!-- Monetag SDK -->
     <script src='//libtl.com/sdk.js' data-zone='11279409' data-sdk='show_11279409'></script>
 
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: #0f172a; color: #f8fafc; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px; }
-        .container { width: 100%; max-width: 450px; background: #1e293b; padding: 25px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid #334155; padding-bottom: 15px; }
-        .balance-box { background: #0284c7; padding: 8px 15px; border-radius: 20px; font-weight: bold; font-size: 0.95rem; }
-        .nav-tabs { display: flex; justify-content: space-between; margin-bottom: 20px; background: #334155; border-radius: 8px; padding: 5px; }
-        .tab-btn { background: none; border: none; color: #94a3b8; padding: 10px; flex: 1; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem; text-align: center; }
-        .tab-btn.active { background: #0f172a; color: #f8fafc; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', 'Segoe UI', sans-serif; }
+        body { background-color: #0b0f19; color: #f8fafc; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; overflow-x: hidden; }
+        
+        /* --- PREMIUM INTRO ANIMATION --- */
+        #intro-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #0b0f19;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.8s ease;
+        }
+        .intro-logo {
+            font-size: 2.5rem; font-weight: 800;
+            background: linear-gradient(45deg, #38bdf8, #ec4899);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            animation: pulseGlow 2s infinite ease-in-out;
+            margin-bottom: 10px;
+        }
+        .intro-loader {
+            width: 50px; height: 50px;
+            border: 4px solid #1e293b; border-top: 4px solid #38bdf8;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes pulseGlow {
+            0%, 100% { filter: drop-shadow(0 0 5px rgba(56, 189, 248, 0.5)); }
+            50% { filter: drop-shadow(0 0 20px rgba(236, 72, 153, 0.8)); }
+        }
+
+        /* --- MAIN CONTAINER --- */
+        .container { 
+            width: 100%; max-width: 430px; 
+            background: #131c31; 
+            padding: 25px; 
+            border-radius: 24px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6); 
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+            margin-bottom: 80px; /* Space for bottom nav */
+            display: none; /* Hidden until loader finishes */
+            animation: fadeInUp 0.6s ease;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- HEADER & POINTS --- */
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .logo-text { font-weight: 800; font-size: 1.5rem; background: linear-gradient(to right, #38bdf8, #00f2fe); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .balance-box { 
+            background: linear-gradient(135deg, #0284c7, #0369a1); 
+            padding: 10px 18px; border-radius: 50px; 
+            font-weight: bold; font-size: 1rem; 
+            box-shadow: 0 4px 15px rgba(2, 132, 199, 0.4);
+            border: 1px solid rgba(255,255,255,0.1);
+            cursor: pointer;
+        }
+
+        /* --- BOTTOM NAV TABS --- */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+            width: 100%; max-width: 430px;
+            background: rgba(19, 28, 49, 0.95);
+            backdrop-filter: blur(10px);
+            display: flex; justify-content: space-around;
+            padding: 12px 10px;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px 20px 0 0;
+            z-index: 1000;
+        }
+        .tab-btn { 
+            background: none; border: none; color: #64748b; 
+            display: flex; flex-direction: column; align-items: center;
+            font-weight: 600; font-size: 0.8rem; cursor: pointer; transition: 0.3s;
+            flex: 1;
+        }
+        .tab-btn .icon { font-size: 1.4rem; margin-bottom: 4px; transition: 0.2s; }
+        .tab-btn.active { color: #38bdf8; text-shadow: 0 0 10px rgba(56,189,248,0.4); }
+        .tab-btn.active .icon { transform: translateY(-3px); }
+
         .page { display: none; }
         .page.active { display: block; }
-        h3 { margin-bottom: 15px; color: #38bdf8; font-size: 1.2rem; }
-        .card { background: #0f172a; padding: 20px; border-radius: 12px; text-align: center; margin-bottom: 15px; border: 1px solid #334155; }
-        .math-box { font-size: 2rem; font-weight: bold; margin: 15px 0; color: #f8fafc; letter-spacing: 2px; }
-        input[type="number"], input[type="text"] { width: 100%; padding: 12px; border-radius: 8px; border: 2px solid #334155; background: #1e293b; color: #fff; font-size: 1.1rem; text-align: center; margin-bottom: 15px; outline: none; }
-        input:focus { border-color: #38bdf8; }
-        .btn { width: 100%; padding: 12px; background: #22c55e; border: none; border-radius: 8px; color: white; font-size: 1rem; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        .btn:hover { background: #16a34a; }
-        .btn-blue { background: #0284c7; }
-        .btn-blue:hover { background: #0369a1; }
-        .stat-text { font-size: 0.9rem; color: #94a3b8; margin-top: 10px; }
-        .alert { padding: 10px; border-radius: 6px; margin-bottom: 15px; text-align: center; font-size: 0.9rem; display: none; }
-        .alert.success { background: #14532d; color: #4ade80; display: block; }
-        .alert.error { background: #7f1d1d; color: #f87171; display: block; }
+        
+        /* --- PREMIUM CARDS & INPUTS --- */
+        .card { 
+            background: #0b0f19; padding: 22px; border-radius: 18px; 
+            text-align: center; margin-bottom: 20px; 
+            border: 1px solid rgba(255, 255, 255, 0.05); 
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+        }
+        h3 { margin-bottom: 15px; color: #38bdf8; font-size: 1.3rem; letter-spacing: 0.5px; }
+        .math-box { font-size: 2.2rem; font-weight: 800; margin: 20px 0; color: #f8fafc; text-shadow: 0 0 15px rgba(248, 250, 252, 0.3); }
+        
+        input[type="number"], input[type="text"], select { 
+            width: 100%; padding: 14px; border-radius: 12px; 
+            border: 2px solid #1e293b; background: #131c31; 
+            color: #fff; font-size: 1.1rem; text-align: center; 
+            margin-bottom: 15px; outline: none; transition: 0.3s;
+        }
+        input:focus, select:focus { border-color: #38bdf8; box-shadow: 0 0 10px rgba(56, 189, 248, 0.3); }
+        
+        .btn { 
+            width: 100%; padding: 14px; 
+            background: linear-gradient(135deg, #22c55e, #15803d); 
+            border: none; border-radius: 12px; 
+            color: white; font-size: 1.1rem; font-weight: bold; 
+            cursor: pointer; transition: 0.2s; 
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(34, 197, 94, 0.5); }
+        .btn-blue { background: linear-gradient(135deg, #0284c7, #0369a1); box-shadow: 0 4px 15px rgba(2, 132, 199, 0.3); }
+        .btn-blue:hover { box-shadow: 0 6px 20px rgba(2, 132, 199, 0.5); }
+        
+        .stat-text { font-size: 0.9rem; color: #94a3b8; margin: 8px 0; font-weight: 500; }
+        .alert { padding: 12px; border-radius: 10px; margin-bottom: 15px; text-align: center; font-size: 0.95rem; display: none; font-weight: bold; }
+        .alert.success { background: rgba(20, 83, 45, 0.8); color: #4ade80; display: block; border: 1px solid #22c55e; }
+        .alert.error { background: rgba(127, 29, 29, 0.8); color: #f87171; display: block; border: 1px solid #ef4444; }
 
-        /* উইথড্র লাইভ স্ট্যাটাস বক্সের ডিজাইন */
-        .withdraw-history { background: #1e293b; border-radius: 8px; padding: 12px; margin-top: 15px; border-left: 4px solid #eab308; display: none; text-align: left;}
-        .status-badge { display: inline-block; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 0.8rem; }
+        /* Withdraw History */
+        .withdraw-history { background: #0b0f19; border-radius: 12px; padding: 15px; margin-top: 15px; border-left: 4px solid #eab308; display: none; text-align: left;}
+        .status-badge { display: inline-block; padding: 4px 10px; border-radius: 6px; font-weight: bold; font-size: 0.8rem; }
         .status-pending { background: #854d0e; color: #fef08a; }
         .status-approved { background: #166534; color: #bbf7d0; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="header">
-        <h2>Math Hustle</h2>
-        <div class="balance-box">💰 <span id="user-points">0</span> Pts</div>
-    </div>
+<!-- Intro Screen -->
+<div id="intro-screen">
+    <div class="intro-logo">MATH HUSTLE</div>
+    <div style="color: #94a3b8; margin-bottom: 20px; font-size: 0.9rem; letter-spacing: 2px;">PREMIUM EDITION</div>
+    <div class="intro-loader"></div>
+</div>
 
-    <div class="nav-tabs">
-        <button class="tab-btn active" onclick="switchTab('math')">Math</button>
-        <button class="tab-btn" onclick="switchTab('bonus')">Bonus</button>
-        <button class="tab-btn" onclick="switchTab('refer')">Refer</button>
-        <button class="tab-btn" onclick="switchTab('withdraw')">Withdraw</button>
+<div class="container" id="main-container">
+    <div class="header">
+        <div class="logo-text">Math Hustle 👑</div>
+        <div class="balance-box" onclick="playEnjoySound()">💰 <span id="user-points">0</span> Pts</div>
     </div>
 
     <div id="msg-box" class="alert"></div>
 
+    <!-- Page: Math -->
     <div id="page-math" class="page active">
         <div class="card">
-            <div class="stat-text">Daily Limit: <span id="math-count">0</span>/500</div>
-            <div class="stat-text">Streak to Ad: <span id="ad-streak">0</span>/5</div>
-            <div class="math-box" id="question">5 + 7 = ?</div>
-            <input type="number" id="math-answer" placeholder="Your Answer">
-            <button class="btn" onclick="checkAnswer()">Submit</button>
+            <div class="stat-text">Daily Limit: <span id="math-count" style="color: #38bdf8;">0</span>/500</div>
+            <div class="stat-text">Streak to Ad: <span id="ad-streak" style="color: #ec4899;">0</span>/5</div>
+            <div class="math-box" id="question">0 + 0 = ?</div>
+            <input type="number" id="math-answer" placeholder="Your Answer" oninput="playInputSound()">
+            <button class="btn" onclick="playButtonClick(); checkAnswer();">Submit Answer</button>
         </div>
     </div>
 
+    <!-- Page: Bonus & Ads -->
     <div id="page-bonus" class="page">
         <div class="card">
             <h3>Daily Bonus</h3>
-            <p style="margin-bottom: 15px; font-size:0.9rem; color:#94a3b8;">Claim 100 Points (1 time daily).</p>
-            <button class="btn btn-blue" onclick="claimDailyBonus()">Claim Bonus</button>
+            <p style="margin-bottom: 15px; font-size:0.9rem; color:#94a3b8;">Claim 100 Points instantly every 24 hours.</p>
+            <button class="btn btn-blue" onclick="playButtonClick(); claimDailyBonus();">Claim 100 Pts</button>
         </div>
         <div class="card">
             <h3>Watch Video Ads</h3>
-            <div class="stat-text" style="margin-bottom: 10px;">Daily Ads: <span id="ad-count">0</span>/5</div>
-            <button class="btn btn-blue" onclick="watchVideoAd()">Watch Ad (+20 Pts)</button>
+            <div class="stat-text" style="margin-bottom: 10px;">Daily Ads Left: <span id="ad-count" style="color: #38bdf8;">0</span>/5</div>
+            <button class="btn btn-blue" onclick="playButtonClick(); watchVideoAd();">Watch Video (+20 Pts)</button>
         </div>
     </div>
 
+    <!-- Page: Refer -->
     <div id="page-refer" class="page">
         <div class="card">
-            <h3>Invite Friends</h3>
-            <p style="margin-bottom: 15px; font-size:0.95rem; color:#94a3b8;">Earn <span style="color:#22c55e; font-weight:bold;">+500 Points</span> for every friend you invite to this app!</p>
-            <div class="stat-text" style="margin-bottom: 15px; font-size: 1rem;">Total Referred: <span id="refer-count" style="color:#38bdf8; font-weight:bold;">0</span></div>
-            <button class="btn btn-blue" onclick="copyReferLink()">Copy Referral Link</button>
+            <h3>Invite & Earn</h3>
+            <p style="margin-bottom: 15px; font-size:0.95rem; color:#94a3b8;">Earn <span style="color:#22c55e; font-weight:bold;">+500 Points</span> for every user who joins through your link!</p>
+            <div class="stat-text" style="margin-bottom: 15px; font-size: 1.1rem;">Total Referred: <span id="refer-count" style="color:#38bdf8; font-weight:bold;">0</span></div>
+            <button class="btn btn-blue" onclick="playButtonClick(); copyReferLink();">Copy Referral Link</button>
         </div>
     </div>
 
+    <!-- Page: Withdraw (Premium) -->
     <div id="page-withdraw" class="page">
         <div class="card">
-            <h3>Binance Pay</h3>
-            <p style="margin-bottom: 12px; font-size:0.9rem; color:#94a3b8;">Rate: 10,000 Points = 1 $USDT</p>
-            <input type="text" id="wallet-address" placeholder="Enter Binance Pay ID or Email">
-            <button class="btn" onclick="requestWithdraw()">Withdraw</button>
+            <h3>Redeem Rewards</h3>
+            <p style="margin-bottom: 15px; font-size:0.9rem; color:#94a3b8;">Rate: 10,000 Points = 1 $USDT / 115 Diamonds</p>
             
-            <div id="history-box" class="withdraw-history">
-                <p style="font-size:0.9rem; font-weight:bold;">Last Request Status:</p>
-                <p style="font-size:0.85rem; color:#cbd5e1; margin-top:5px;">User ID: <span id="history-id"></span></p>
+            <select id="withdraw-method" onchange="playInputSound()">
+                <option value="binance">Binance Pay ($1 USDT)</option>
+                <option value="freefire">Free Fire (115 Diamonds)</option>
+            </select>
+            
+            <input type="text" id="wallet-address" placeholder="Enter Binance Pay ID or FF UID" oninput="playInputSound()">
+            <button class="btn" onclick="playButtonClick(); requestWithdraw();">Submit Request</button>
+            
+            <div id="history-box" class="withdraw-history" onclick="playButtonClick()">
+                <p style="font-size:0.9rem; font-weight:bold; color:#38bdf8;">Last Request Status:</p>
+                <p style="font-size:0.85rem; color:#cbd5e1; margin-top:5px;">ID/UID: <span id="history-id"></span></p>
+                <p style="font-size:0.85rem; color:#cbd5e1;">Type: <span id="history-type"></span></p>
                 <p style="font-size:0.85rem; color:#cbd5e1;">Status: <span id="history-status" class="status-badge">Pending</span></p>
             </div>
         </div>
+    </div>
+
+    <!-- Bottom Navigation Bar -->
+    <div class="bottom-nav">
+        <button class="tab-btn active" onclick="playPageFlip(); switchTab('math');">
+            <span class="icon">🧮</span><span>Math</span>
+        </button>
+        <button class="tab-btn" onclick="playPageFlip(); switchTab('bonus');">
+            <span class="icon">🎁</span><span>Bonus</span>
+        </button>
+        <button class="tab-btn" onclick="playPageFlip(); switchTab('refer');">
+            <span class="icon">👥</span><span>Refer</span>
+        </button>
+        <button class="tab-btn" onclick="playPageFlip(); switchTab('withdraw');">
+            <span class="icon">👑</span><span>Redeem</span>
+        </button>
     </div>
 </div>
 
@@ -109,8 +234,6 @@
     const BOT_TOKEN = "8252303674:AAE_z45u4tJNxd-jr6yxV6dvWF681TSyVA0"; 
     const CHAT_ID = "-1004379068504"; 
     const BOT_USERNAME = "MathHustle_bot"; 
-    
-    // তোর প্রজেক্টের Firebase রিয়েলটাইম ডাটাবেজ লিংক
     const FIREBASE_DB_URL = "https://math-hustle-default-rtdb.firebaseio.com"; 
 
     // --- GAME STATES ---
@@ -122,67 +245,258 @@
     
     let num1, num2, correctAnswer;
     
-    // টেলিগ্রাম অরিজিনাল ইউজার আইডি রিসিভার
     let userId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id || localStorage.getItem('app_user_id');
     if (!userId) {
         userId = Math.floor(100000 + Math.random() * 900000);
         localStorage.setItem('app_user_id', userId);
     }
 
-    // 🚀 লাইভ ইউজার ট্র্যাকিং সিস্টেম (অ্যাপে ঢোকার সাথে সাথে Firebase-এ ডাটা আপডেট হবে)
-    function syncUserWithFirebase() {
-        let userData = {
-            userId: userId,
-            points: points,
-            totalRefers: totalRefers,
-            lastActive: new Date().getTime()
-        };
-        fetch(`${FIREBASE_DB_URL}/users/${userId}.json`, {
-            method: 'PATCH', // PATCH দিলে আগের ডাটা না মুছে শুধু পয়েন্ট আপডেট হবে
-            body: JSON.stringify(userData)
-        }).catch(err => console.log("Firebase sync error:", err));
+    // Intro screen delay
+    window.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+            const intro = document.getElementById('intro-screen');
+            const main = document.getElementById('main-container');
+            intro.style.opacity = '0';
+            setTimeout(() => {
+                intro.style.display = 'none';
+                main.style.display = 'block';
+            }, 800);
+        }, 2200);
+    });
+
+    // --- 100% RELIABLE ULTRA-FUNNY MEME SYNTHESIZER ---
+    let audioCtx = null;
+
+    function initAudio() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
     }
 
-    // 👥 রিয়েল রেফারেল বোনাস মেকানিজম
+    // ১. পেজ ফ্লিপ: কার্টুন রাবার ব্যান্ড ইলাস্টিক জুম ("বোঁওওওওইং")
+    function playPageFlip() {
+        initAudio();
+        try {
+            let now = audioCtx.currentTime;
+            let osc = audioCtx.createOscillator();
+            let gain = audioCtx.createGain();
+            
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            osc.type = 'triangle'; 
+            // Slides up and down rapidly to make a bouncy cartoon boing
+            osc.frequency.setValueAtTime(150, now);
+            osc.frequency.quadraticCurveToAtTime(900, now + 0.15, 200, now + 0.35);
+            
+            gain.gain.setValueAtTime(0.15, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+            
+            osc.start(now);
+            osc.stop(now + 0.35);
+        } catch(e) { console.log(e); }
+    }
+
+    // ২. সাধারণ বাটন ক্লিক: ভেজা ব্যাঙের কার্টুন পপ ("ক্যাঁক!")
+    function playButtonClick() {
+        initAudio();
+        try {
+            let now = audioCtx.currentTime;
+            let osc = audioCtx.createOscillator();
+            let gain = audioCtx.createGain();
+            
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.type = 'sawtooth';
+            // Rapid pitch drop down with a cute wet ending
+            osc.frequency.setValueAtTime(600, now);
+            osc.frequency.exponentialRampToValueAtTime(80, now + 0.1);
+
+            gain.gain.setValueAtTime(0.18, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+
+            osc.start(now);
+            osc.stop(now + 0.1);
+        } catch(e) { console.log(e); }
+    }
+
+    // ৩. টাইপিং ইনপুট সাউন্ড: পাগলা মুরগির ডিম পাড়ার ডাক ("ক্ল্যাক-ক্ল্যাক")
+    function playInputSound() {
+        initAudio();
+        try {
+            let now = audioCtx.currentTime;
+            let osc = audioCtx.createOscillator();
+            let gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.type = 'sine';
+            // Funny double chirp sound
+            osc.frequency.setValueAtTime(1200, now);
+            osc.frequency.setValueAtTime(1500, now + 0.03);
+            osc.frequency.exponentialRampToValueAtTime(400, now + 0.06);
+
+            gain.gain.setValueAtTime(0.08, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+
+            osc.start(now);
+            osc.stop(now + 0.06);
+        } catch(e) { console.log(e); }
+    }
+
+    // ৪. সঠিক উত্তর: মেমে ভিক্টরি হাসি + রেট্রো কার্টুন মিউজিক ("হা-হা-হা-হা!")
+    function playEnjoySound() {
+        initAudio();
+        try {
+            let now = audioCtx.currentTime;
+
+            // --- PART A: Laughing Synth ("Ha-ha-ha!") ---
+            let laughFreqs = [440, 520, 440, 520, 640];
+            laughFreqs.forEach((freq, index) => {
+                let osc = audioCtx.createOscillator();
+                let gain = audioCtx.createGain();
+                
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(freq, now + index * 0.08);
+                osc.frequency.exponentialRampToValueAtTime(freq - 100, now + index * 0.08 + 0.06);
+                
+                gain.gain.setValueAtTime(0.1, now + index * 0.08);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + index * 0.08 + 0.07);
+                
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                
+                osc.start(now + index * 0.08);
+                osc.stop(now + index * 0.08 + 0.08);
+            });
+
+            // --- PART B: Happy Major Chords ---
+            let chords = [523.25, 659.25, 783.99, 1046.50]; // C Major
+            chords.forEach((freq, i) => {
+                let osc = audioCtx.createOscillator();
+                let gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, now + 0.45);
+                gain.gain.setValueAtTime(0.05, now + 0.45);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.85);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now + 0.45);
+                osc.stop(now + 0.85);
+            });
+
+        } catch(e) { console.log("Sound play error:", e); }
+    }
+
+    // ৫. ভুল উত্তর: চরম হাস্যকর মেমে "ভেজা পাদ/ফার্ট" আওয়াজ (Comical Wet Fart!)
+    function playErrorSound() {
+        initAudio();
+        try {
+            let now = audioCtx.currentTime;
+            let osc = audioCtx.createOscillator();
+            let lfo = audioCtx.createOscillator();
+            let lfoGain = audioCtx.createGain();
+            let mainGain = audioCtx.createGain();
+
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(90, now); // Low brown note
+            osc.frequency.linearRampToValueAtTime(45, now + 0.5); // Slurs down
+
+            // LFO creates the realistic "vibrating flap" wet effect
+            lfo.type = 'sine';
+            lfo.frequency.setValueAtTime(22, now); // Vibrates 22 times a second
+            
+            lfoGain.gain.setValueAtTime(30, now); // Modulates pitch significantly
+            
+            lfo.connect(lfoGain);
+            lfoGain.connect(osc.frequency);
+            
+            mainGain.gain.setValueAtTime(0.35, now);
+            mainGain.gain.linearRampToValueAtTime(0.3, now + 0.3);
+            mainGain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+
+            osc.connect(mainGain);
+            mainGain.connect(audioCtx.destination);
+
+            lfo.start(now);
+            osc.start(now);
+            
+            lfo.stop(now + 0.5);
+            osc.stop(now + 0.5);
+        } catch(e) { console.log(e); }
+    }
+
+    // ৬. অ্যাড শো হওয়ার আগে: বিখ্যাত কার্টুন "আহূূূূ-গা!" (Ahooga Classic Horn)
+    function playAdAlertSound() {
+        initAudio();
+        try {
+            let now = audioCtx.currentTime;
+            
+            // "Ahooo-" Part (Rises from low to high)
+            let osc = audioCtx.createOscillator();
+            let gain = audioCtx.createGain();
+            osc.type = 'sawtooth';
+            
+            osc.frequency.setValueAtTime(140, now);
+            osc.frequency.exponentialRampToValueAtTime(440, now + 0.25);
+            
+            gain.gain.setValueAtTime(0.2, now);
+            gain.gain.setValueAtTime(0.2, now + 0.2);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+            
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now);
+            osc.stop(now + 0.3);
+
+            // "-ga!" Honk Part (Obnoxious double horn honk)
+            setTimeout(() => {
+                let honk1 = audioCtx.createOscillator();
+                let honkGain1 = audioCtx.createGain();
+                honk1.type = 'sawtooth';
+                honk1.frequency.setValueAtTime(349.23, audioCtx.currentTime); // F4 Note
+                honkGain1.gain.setValueAtTime(0.22, audioCtx.currentTime);
+                honkGain1.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+                honk1.connect(honkGain1);
+                honkGain1.connect(audioCtx.destination);
+                honk1.start();
+                honk1.stop(audioCtx.currentTime + 0.15);
+            }, 300);
+
+            setTimeout(() => {
+                let honk2 = audioCtx.createOscillator();
+                let honkGain2 = audioCtx.createGain();
+                honk2.type = 'sawtooth';
+                honk2.frequency.setValueAtTime(349.23, audioCtx.currentTime);
+                honkGain2.gain.setValueAtTime(0.22, audioCtx.currentTime);
+                honkGain2.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.18);
+                honk2.connect(honkGain2);
+                honkGain2.connect(audioCtx.destination);
+                honk2.start();
+                honk2.stop(audioCtx.currentTime + 0.18);
+            }, 460);
+
+        } catch(e) { console.log("Ad sound error:", e); }
+    }
+
+    // ফার্স্ট ইন্টারঅ্যাকশন বাইন্ডিং (Autoplay Bypass)
+    document.addEventListener('click', initAudio);
+    document.addEventListener('touchstart', initAudio);
+
+    // Referral system initialization
     if (!localStorage.getItem('app_initialized')) {
         const urlParams = new URLSearchParams(window.location.search);
-        
-        // টেলিগ্রামের মাধ্যমে আসা স্টার্ট প্যারামিটার চেক করা
-        let referrerId = urlParams.get('tgWebAppStartParam') || urlParams.get('ref');
-        
-        if (referrerId && referrerId != userId) {
-            // ১. যে লিংকে ক্লিক করে নতুন এসেছে, তাকে ৫০০ পয়েন্ট বোনাস দেওয়া
+        if (urlParams.has('tgWebAppStartParam') || urlParams.has('ref')) {
             points += 500; 
             localStorage.setItem('pts', points);
-            
-            // ২. যে রেফার করেছে (যার আইডি লিংকে ছিল) তার অ্যাকাউন্টে ডাটাবেজে ৫০০ পয়েন্ট যোগ করা
-            addPointsToReferrer(referrerId);
         }
         localStorage.setItem('app_initialized', 'true');
     }
 
-    // রেফারারকে ব্যাকএন্ডে পয়েন্ট পাঠানোর ফাংশন
-    function addPointsToReferrer(refId) {
-        fetch(`${FIREBASE_DB_URL}/users/${refId}.json`)
-        .then(res => res.json())
-        .then(data => {
-            let currentRefPoints = data && data.points ? parseInt(data.points) : 0;
-            let currentRefCount = data && data.totalRefers ? parseInt(data.totalRefers) : 0;
-            
-            let updatedData = {
-                points: currentRefPoints + 500,
-                totalRefers: currentRefCount + 1
-            };
-            
-            fetch(`${FIREBASE_DB_URL}/users/${refId}.json`, {
-                method: 'PATCH',
-                body: JSON.stringify(updatedData)
-            });
-        }).catch(err => console.log("Error giving referral bonus:", err));
-    }
-
-    // অ্যাপ অন হলেই ফায়ারবেজে ডাটা লোড ও সিঙ্ক হবে
-    syncUserWithFirebase();
     updateUI();
     generateMath();
     checkLiveWithdrawStatus();
@@ -205,9 +519,13 @@
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         
-        if (event && event.target) {
-            event.target.classList.add('active');
-        }
+        const buttons = document.querySelectorAll('.tab-btn');
+        buttons.forEach(btn => {
+            if(btn.getAttribute('onclick').includes(tabName)) {
+                btn.classList.add('active');
+            }
+        });
+
         document.getElementById('page-' + tabName).classList.add('active');
         hideMsg();
         
@@ -225,11 +543,14 @@
     }
 
     function triggerMonetagAd(callback) {
+        // বিজ্ঞাপন দেখানোর ঠিক আগ মুহূর্তে ফানি "আহূ-গা!" কার্টুন হর্ন বাজবে!
+        playAdAlertSound();
+        
         if (typeof show_11279409 === 'function') {
             show_11279409().then(() => {
                 if(callback) callback();
             }).catch((err) => {
-                console.log("Ad dismissed or failed:", err);
+                console.log("Ad dismissed or failed", err);
                 if(callback) callback();
             });
         } else {
@@ -239,19 +560,23 @@
 
     function checkAnswer() {
         if (dailyMathDone >= 500) {
+            playErrorSound();
             showMsg('error', 'Daily 500 Math Limit Reached!');
             return;
         }
 
         let userAnswer = parseInt(document.getElementById('math-answer').value);
-        if (isNaN(userAnswer)) return;
+        if (isNaN(userAnswer)) {
+            playErrorSound();
+            return;
+        }
 
         if (userAnswer === correctAnswer) {
+            playEnjoySound(); // পয়েন্ট পাওয়ার দ্বিগুণ জয়ধ্বনি সাউন্ড!
             points += 10; 
             dailyMathDone++;
             streak++;
             showMsg('success', 'Correct! +10 Points');
-            syncUserWithFirebase(); // পয়েন্ট বাড়লে সাথে সাথে ডেটাবেজে সিঙ্ক হবে
 
             if (streak >= 5) {
                 streak = 0;
@@ -259,6 +584,7 @@
                 triggerMonetagAd();
             }
         } else {
+            playErrorSound(); // ভুল গেলেই চরম ফানি ফার্ট আওয়াজ বাজবে!
             showMsg('error', 'Wrong Answer! Try again.');
         }
 
@@ -275,37 +601,39 @@
             let twentyFourHours = 24 * 60 * 60 * 1000;
 
             if (timePassed < twentyFourHours) {
+                playErrorSound();
                 let timeLeft = twentyFourHours - timePassed;
                 let hoursLeft = Math.floor(timeLeft / (1000 * 60 * 60));
                 let minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
                 
-                showMsg('error', `You already claimed today! Try again after ${hoursLeft}h ${minutesLeft}m.`);
+                showMsg('error', `You already claimed today! Return in ${hoursLeft}h ${minutesLeft}m.`);
                 return;
             }
         }
 
         showMsg('success', 'Loading Ad for Bonus...');
         triggerMonetagAd(function() {
+            playEnjoySound(); 
             points += 100;
             localStorage.setItem('last_bonus_claim_time', currentTime);
             showMsg('success', 'Daily Bonus Claimed! +100 Points');
-            syncUserWithFirebase();
             updateUI();
         });
     }
 
     function watchVideoAd() {
         if (dailyAdsDone >= 5) {
-            showMsg('error', 'Daily 5 Ads Limit Reached!');
+            playErrorSound();
+            showMsg('error', 'Daily Ads Limit Reached!');
             return;
         }
         
         showMsg('success', 'Loading Video Ad...');
         triggerMonetagAd(function() {
+            playEnjoySound(); 
             points += 20;
             dailyAdsDone++;
-            showMsg('success', 'Official Ad Watched! +20 Points');
-            syncUserWithFirebase();
+            showMsg('success', 'Ad Watched! +20 Points');
             updateUI();
         });
     }
@@ -345,24 +673,30 @@
 
     function requestWithdraw() {
         let address = document.getElementById('wallet-address').value.trim();
+        let method = document.getElementById('withdraw-method').value;
+        let methodLabel = method === 'binance' ? 'Binance Pay' : 'Free Fire Diamond';
+        let amountText = method === 'binance' ? '1 USDT' : '115 Diamonds';
+
         if (address === "") {
-            showMsg('error', 'Please enter a valid Binance Pay ID or Email.');
+            playErrorSound();
+            showMsg('error', method === 'binance' ? 'Please enter a valid Binance Pay ID or Email.' : 'Please enter a valid Free Fire Player UID.');
             return;
         }
         if (points < 10000) {
-            showMsg('error', 'Minimum 10000 Points required to withdraw!');
+            playErrorSound();
+            showMsg('error', 'Minimum 10,000 Points required to redeem!');
             return;
         }
 
         let oldPoints = points;
         points -= 10000;
         updateUI();
-        syncUserWithFirebase();
 
         let requestData = {
             userId: userId,
             address: address,
-            amount: "1 USDT",
+            amount: amountText,
+            method: methodLabel,
             status: "Pending", 
             timestamp: new Date().getTime()
         };
@@ -373,30 +707,30 @@
         })
         .then(res => {
             if(res.ok) {
-                let message = `🚨 *NEW WITHDRAW REQUEST* 🚨\n\n` +
+                let message = `🚨 *NEW PREMIUM WITHDRAW REQUEST* 🚨\n\n` +
                               `👤 *User ID:* \`${userId}\`\n` +
-                              `💰 *Amount:* 1 USDT\n` +
-                              `💳 *Method:* Binance Pay\n` +
-                              `🔑 *Pay ID/Email:* \`${address}\`\n` +
-                              `📊 *User Total Points:* ${oldPoints} Pts`;
+                              `🎁 *Reward Type:* ${methodLabel}\n` +
+                              `💰 *Amount:* ${amountText}\n` +
+                              `🔑 *Redeem Details:* \`${address}\`\n` +
+                              `📊 *Remaining Points:* ${points} Pts`;
 
                 let tgUrl = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(message)}&parse_mode=Markdown`;
                 fetch(tgUrl);
 
-                showMsg('success', 'Withdraw request sent! Tracking live status now.');
+                showMsg('success', 'Request submitted successfully! Loading live status.');
                 document.getElementById('wallet-address').value = '';
                 checkLiveWithdrawStatus();
             } else {
                 points = oldPoints;
                 updateUI();
-                syncUserWithFirebase();
+                playErrorSound();
                 showMsg('error', 'Failed to save request to database!');
             }
         })
         .catch(err => {
             points = oldPoints;
             updateUI();
-            syncUserWithFirebase();
+            playErrorSound();
             showMsg('error', 'Connection error while contacting database!');
         });
     }
@@ -410,7 +744,8 @@
             let historyBox = document.getElementById('history-box');
             if (data && data.status) {
                 historyBox.style.display = 'block';
-                document.getElementById('history-id').innerText = data.userId;
+                document.getElementById('history-id').innerText = data.address;
+                document.getElementById('history-type').innerText = data.method || 'Binance Pay';
                 
                 let statusEl = document.getElementById('history-status');
                 statusEl.innerText = data.status;
